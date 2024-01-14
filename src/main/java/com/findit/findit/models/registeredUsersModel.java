@@ -6,13 +6,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 @Entity
 @Table(name = "registeredUsers")
-public class registeredUsers {
+public class registeredUsersModel {
+    
+    @Transient
     private String password;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,40 +41,51 @@ public class registeredUsers {
         this.firstName = firstName;
     }
 
-    public String getFirstName(){
-        return this.firstName;
-    }
-
     public void setLastName(String lastName) {
         this.lastName=lastName;
-    }
-
-    public String getLastName(){
-        return this.lastName;
     }
 
     public void setEmail(String email){
         this.email=email;
     }
 
-    public String getEmail(){
-        return this.email;
+    public void setUserType(String userType){
+        this.userType=userType;
     }
 
-    public void setPassword(String password){
+
+    public void setHashedPassword(String password){
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode(password);
         this.hashedPassword = hashedPassword;
         this.password=password;
     }
 
-    public String getPassword(){
+    public String getFirstName(){
+        return this.firstName;
+    }
+
+    public String getLastName(){
+        return this.lastName;
+    }
+
+
+    public String getEmail(){
+        return this.email;
+    }
+
+    public String getUserType(){
+        return this.userType;
+    }
+    
+    
+     public String getPassword(){
         return this.password;
     }
 
-    public void setUserType(String userType){
-        this.userType=userType;
-    }
 
+    public String getHashedPassword(){
+        return this.hashedPassword;
+    }
 
 }

@@ -2,6 +2,7 @@ package com.findit.findit.controller;
 
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.findit.findit.models.registeredUsers;
+import com.findit.findit.models.registeredUsersModel;
+import com.findit.findit.repository.registeredUsersRepo;
 
 import java.util.regex.Matcher;
 
@@ -50,8 +52,11 @@ public class registeredUsersController {
         return hasAlphabet && hasNumber && hasSpecialChar;
     }
 
+    @Autowired
+    private registeredUsersRepo userModel;
+
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody registeredUsers req) {
+    public ResponseEntity<String> registerUser(@RequestBody registeredUsersModel req) {
 
         if (req.getFirstName().isEmpty()) {
             return ResponseEntity.badRequest().body("First name cannot be empty!!");
@@ -72,6 +77,10 @@ public class registeredUsersController {
         if (!isValidEmail(req.getEmail())) {
             return ResponseEntity.badRequest().body("Enter a valid email");
         }
+
+        if(userModel.existsByEmail(req.getEmail())){
+            return ResponseEntity.badRequest().body("oops, this email is already registered");
+        }
     
         if (req.getPassword().length() < 8) {
             return ResponseEntity.badRequest().body("Password too short");
@@ -80,7 +89,12 @@ public class registeredUsersController {
                 return ResponseEntity.badRequest().body("Invalid password: password must contain a combination of alphabets, numbers, special characters");
             }
         }
-    
+
+        if(!req.getUserType().equals("recruiter") && !req.getUserType().equals("job seeker")){
+            return ResponseEntity.badRequest().body("choose type of user!!");
+        }
+        req.setHashedPassword(req.getPassword());
+        userModel.save(req);
     
         return ResponseEntity.ok("success");
 
